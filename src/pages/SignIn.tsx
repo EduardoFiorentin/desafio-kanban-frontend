@@ -4,9 +4,9 @@ import { useNavigate } from "react-router-dom"
 import { useState } from "react"
 import { Eye, EyeOff } from "lucide-react"
 import { useForm } from "react-hook-form"
-import dotenv from 'dotenv';
+// import dotenv from 'dotenv';
 
-dotenv.config()
+// dotenv.config()
 
 interface ISignInData {
     login: string,
@@ -23,24 +23,50 @@ const SignIn = () => {
       } = useForm<ISignInData>()
 
     const navigate = useNavigate()
-    const handleNavigate = () => navigate('/signup')
+    const handleNavigate = (route: string) => navigate(route)
 
     const [viewPass, setViewPass] = useState<boolean>(false)
+    const [err, setErr] = useState<0 | 400 | 500>(0)
 
     const handleClick = () => setViewPass(!viewPass)
 
     const logIn = async (login: string, password: string) => {
-        // console.log(`${process.env.HOST}/signin`)s
-        // const fetchData = await fetch()
+        setErr(0)
+        await fetch("http://localhost:3000/auth", {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                login,
+                password
+            })
+            
+        })
+        .then(data => data.json())
+        .then(data => {
+            if (data.status === 200) {
+                localStorage.setItem('user', JSON.stringify(data.data[0]))
+                handleNavigate('/board')
+            } else if (data.status === 400) {
+                setErr(400)
+            } else {
+                setErr(500)
+            }       
+
+        })
+        .catch(err => console.log("err", err))
+
     }
 
     const onSubmit = (data: ISignInData) => {
-        // data.preventDefault()
+
         console.log(data)
 
         if (data.login && data.password) {
-            // fetch("")
+            logIn(data.login, data.password)
         }
+
     }
 
     return (
@@ -55,9 +81,13 @@ const SignIn = () => {
                         {viewPass ? <EyeOff size={16}/> : <Eye size={16}/>}
                     </div>
                 </TextField.Root>
+                <div className="h-[10px] text-red-600 font-sans font-bold">
+                    {err === 400 && <p>Login ou Senha incorretos!</p>}
+                    {err === 500 && <p>Não foi possível autenticar! Tente novamente mais tarde.</p>}
+                </div>
 
                 <div className="w-full flex justify-evenly mt-5">
-                    <Button variant="soft" style={{width: "40%", cursor: "pointer"}} onClick={handleNavigate}>Criar Conta</Button>
+                    <Button variant="soft" style={{width: "40%", cursor: "pointer"}} onClick={() => handleNavigate("/signup")}>Criar Conta</Button>
                     <Button variant="solid" style={{width: "40%", cursor: "pointer"}}>Entrar</Button>
                 </div>
             </form>
