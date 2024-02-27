@@ -16,7 +16,6 @@ const SignUp = () => {
                 <TextField.Input placeholder="Login" type="text" size="3"/>
                 <TextField.Input placeholder="Senha" type="password" size="3" />
                 <TextField.Input placeholder="Confirmar Senha" type="password" size="3"/>
-                {/* <TextField.Input placeholder="Enter your email" /> */}
 
                 <div className="w-full flex justify-evenly mt-5">
                     <Button variant="soft" style={{width: "40%", cursor: "pointer"}} onClick={handleNavigate}>Entrar</Button>

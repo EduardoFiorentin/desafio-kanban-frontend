@@ -17,7 +17,7 @@ import { Board } from './pages/Board';
 const router = createBrowserRouter([
   {
     path: "/",
-    element: <Navigate to="/signup"/>
+    element: <Navigate to="/signin"/>
   }
   ,{
     path: "/signup",
