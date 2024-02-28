@@ -46,8 +46,10 @@ const SignIn = () => {
         .then(data => data.json())
         .then(data => {
             if (data.status === 200) {
-                localStorage.setItem('user', JSON.stringify(data.data[0]))
+                localStorage.setItem('user_kanban', JSON.stringify(data.data))
+                localStorage.setItem('token_kanban', 'Bearer '+ data.data.token)
                 handleNavigate('/board')
+
             } else if (data.status === 400) {
                 setErr(400)
             } else {
@@ -60,13 +62,9 @@ const SignIn = () => {
     }
 
     const onSubmit = (data: ISignInData) => {
-
-        console.log(data)
-
         if (data.login && data.password) {
             logIn(data.login, data.password)
         }
-
     }
 
     return (
