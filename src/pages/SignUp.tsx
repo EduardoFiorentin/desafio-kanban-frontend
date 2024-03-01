@@ -25,16 +25,18 @@ const SignUp = () => {
 
     const onSubmit = (data: ISignUpData) => {
         console.log("verifica")
-        if (data.name && data.login && data.password && data.confirm_password && data.password === data.confirm_password) {
-            setRequestErr(0)
-            createUserRequest(data)
-        } else setRequestErr(300)
+        if (data.name && data.login && data.password && data.confirm_password) {
+            if (data.password === data.confirm_password) {
+                setRequestErr(0)
+                createUserRequest(data)
+            } else setRequestErr(300) 
+        }
     }
 
     
     // controle de erros 
     // 0 - sem erros
-        // 300 - informações incorretas 
+        // 300 - senhas não correspondem
         // 400 - bad request (informações inválidas)
         // 500 - erro no request
     const [requestErr, setRequestErr] = useState< 0 | 300 | 400 | 500 >(0)

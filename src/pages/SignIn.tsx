@@ -2,7 +2,7 @@ import { Button, TextField } from "@radix-ui/themes"
 import { Header } from "../components/Header"
 import { useNavigate } from "react-router-dom"
 import { useState } from "react"
-import { Eye, EyeOff } from "lucide-react"
+import { Eye, EyeOff, Loader2 } from "lucide-react"
 import { useForm } from "react-hook-form"
 // import dotenv from 'dotenv';
 
@@ -17,6 +17,8 @@ const SignIn = () => {
     // controle de navegação entre páginas da aplicação
     const navigate = useNavigate()
     const handleNavigate = (route: string) => navigate(route)
+
+    const [isRequesting, setIsRequesting] = useState<boolean>(false)
     
     // controle de visualização da senha 
     const [viewPass, setViewPass] = useState<boolean>(false)
@@ -42,6 +44,7 @@ const SignIn = () => {
     }
     const logIn = async (login: string, password: string) => {
         setErr(0)
+        setIsRequesting(true)
         await fetch("http://localhost:3000/auth", {
             method: 'POST',
             headers: {
@@ -55,6 +58,7 @@ const SignIn = () => {
         })
         .then(data => data.json())
         .then(data => {
+            setIsRequesting(false)
             if (data.status === 200) {
                 localStorage.setItem('user_kanban', JSON.stringify(data.data))
                 localStorage.setItem('token_kanban', 'Bearer '+ data.data.token)
@@ -65,10 +69,11 @@ const SignIn = () => {
             } else {
                 setErr(500)
             }       
-
+            
         })
         .catch(err => {
             console.log("err", err)
+            setIsRequesting(false)
             setErr(500)
         })
 
@@ -97,7 +102,7 @@ const SignIn = () => {
 
                 <div className="w-full flex justify-evenly mt-5">
                     <Button variant="soft" style={{width: "40%", cursor: "pointer"}} onClick={() => handleNavigate("/signup")}>Criar Conta</Button>
-                    <Button variant="solid" style={{width: "40%", cursor: "pointer"}}>Entrar</Button>
+                    <Button variant="solid" style={{width: "40%", cursor: "pointer"}} type="submit" disabled={isRequesting}>{isRequesting ? <Loader2 className="animate-spin"/> : "Criar"}</Button>
                 </div>
             </form>
         </>
