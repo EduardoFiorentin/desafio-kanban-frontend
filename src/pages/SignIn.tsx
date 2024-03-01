@@ -14,22 +14,32 @@ interface ISignInData {
 }
 
 const SignIn = () => {
-
-    const {
-        register,
-        handleSubmit,
-        watch,
-        formState: { errors },
-      } = useForm<ISignInData>()
-
+    // controle de navegação entre páginas da aplicação
     const navigate = useNavigate()
     const handleNavigate = (route: string) => navigate(route)
-
+    
+    // controle de visualização da senha 
     const [viewPass, setViewPass] = useState<boolean>(false)
+    const handleChangeViewPass = () => setViewPass(!viewPass)
+
+    // controle de erros da chamada 
     const [err, setErr] = useState<0 | 400 | 500>(0)
-
-    const handleClick = () => setViewPass(!viewPass)
-
+    
+    
+    // react hook form
+    const {
+    register,
+        handleSubmit,
+        formState: { errors },
+    } = useForm<ISignInData>()
+    
+    
+    // controle de submit para login de usuário
+    const onSubmit = (data: ISignInData) => {
+        if (data.login && data.password) {
+            logIn(data.login, data.password)
+        }
+    }
     const logIn = async (login: string, password: string) => {
         setErr(0)
         await fetch("http://localhost:3000/auth", {
@@ -57,15 +67,13 @@ const SignIn = () => {
             }       
 
         })
-        .catch(err => console.log("err", err))
+        .catch(err => {
+            console.log("err", err)
+            setErr(500)
+        })
 
     }
 
-    const onSubmit = (data: ISignInData) => {
-        if (data.login && data.password) {
-            logIn(data.login, data.password)
-        }
-    }
 
     return (
         <>
@@ -75,13 +83,16 @@ const SignIn = () => {
                 <TextField.Input placeholder="Login" type="text" size="3" {...register("login", {required: true})}/>
                 <TextField.Root size="3" className="relative">
                     <TextField.Input placeholder="Senha" size="3" className="" type={viewPass ? "text" : "password"} {...register("password", {required: true})}/>
-                    <div className="absolute inset-y-0 right-0 flex items-center pr-3 cursor-pointer z-10 bg-white m-1" onClick={handleClick}>
+                    <div className="absolute inset-y-0 right-0 flex items-center pr-3 cursor-pointer z-10 bg-white m-1" onClick={handleChangeViewPass}>
                         {viewPass ? <EyeOff size={16}/> : <Eye size={16}/>}
                     </div>
                 </TextField.Root>
-                <div className="h-[10px] text-red-600 font-sans font-bold">
+                <div className="h-auto text-red-600 font-sans font-bold text-xs">
                     {err === 400 && <p>Login ou Senha incorretos!</p>}
-                    {err === 500 && <p>Não foi possível autenticar! Tente novamente mais tarde.</p>}
+                    {err === 500 && <p>Erro inesperado! Tente novamente mais tarde.</p>}
+                    {errors.login?.type === "required" || 
+                    errors .password?.type === "required"
+                    && <p className="text-red-600 font-bold text-xm" role="alert">Campos login e senha são obrigatórios!</p>}    
                 </div>
 
                 <div className="w-full flex justify-evenly mt-5">
@@ -92,5 +103,9 @@ const SignIn = () => {
         </>
     )
 }
+
+// {errors.firstName?.type === "required" && (
+//     <p role="alert">First name is required</p>
+//   )}
 
 export { SignIn }
